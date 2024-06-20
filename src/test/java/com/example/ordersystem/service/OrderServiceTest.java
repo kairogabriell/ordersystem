@@ -14,6 +14,7 @@ import java.sql.Date;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderServiceTest extends DatabaseTestSetup {
 
@@ -67,42 +68,56 @@ public class OrderServiceTest extends DatabaseTestSetup {
 
         // Teste sem filtros
         PaginatedResponseDTO response = orderService.getAllOrders(null, null, null, null, null);
-        printOrders(response);
+        assertEquals(2, response.getPagination().getEntries());
+        assertEquals(2, response.getPagination().getTotalEntries());
+        assertEquals(1, response.getPagination().getPage());
+        assertEquals(100, response.getPagination().getLimit()); // Assuming default limit is 10
+        assertEquals(1, response.getPagination().getTotalPages());
+
+        // Verificando os detalhes dos pedidos
+        assertEquals(2, response.getData().size());
+        assertEquals("Bela", response.getData().get(0).getName());
+        assertEquals("Bebela", response.getData().get(1).getName());
 
         // Teste filtrando pelo ID
         response = orderService.getAllOrders(1, null, null, null, null);
-        System.out.println("\nFiltrando pelo ID do pedido (1):");
-        printOrders(response);
+        assertEquals(1, response.getPagination().getEntries());
+        assertEquals(1, response.getPagination().getTotalEntries());
+        assertEquals(1, response.getPagination().getPage());
+        assertEquals(100, response.getPagination().getLimit());
+        assertEquals(1, response.getPagination().getTotalPages());
+
+        assertEquals(1, response.getData().size());
+        assertEquals("Bela", response.getData().get(0).getName());
 
         // Teste filtrando por intervalo de datas
         Date startDate = Date.valueOf("2022-01-01");
         Date endDate = Date.valueOf("2022-12-31");
         response = orderService.getAllOrders(null, startDate, endDate, null, null);
-        System.out.println("\nFiltrando por intervalo de datas (2022-01-01 a 2022-12-31):");
-        printOrders(response);
+        assertEquals(0, response.getPagination().getEntries()); // Assuming no orders in the specified range
 
         // Teste de paginação (page 1, limit 1)
         response = orderService.getAllOrders(null, null, null, 1, 1);
-        System.out.println("\nPaginação (page 1, limit 1):");
-        printOrders(response);
-    }
+        System.out.println("Page 1: " + response.getData().get(0).getName());
+        assertEquals(1, response.getPagination().getEntries());
+        assertEquals(2, response.getPagination().getTotalEntries());
+        assertEquals(1, response.getPagination().getPage());
+        assertEquals(1, response.getPagination().getLimit());
+        assertEquals(2, response.getPagination().getTotalPages());
 
-    private static void printOrders(PaginatedResponseDTO response) {
-        System.out.println("Pagination:");
-        System.out.println("  Entries: " + response.getPagination().getEntries());
-        System.out.println("  Total Entries: " + response.getPagination().getTotalEntries());
-        System.out.println("  Page: " + response.getPagination().getPage());
-        System.out.println("  Limit: " + response.getPagination().getLimit());
-        System.out.println("  Total Pages: " + response.getPagination().getTotalPages());
+        assertEquals(1, response.getData().size());
+        assertEquals("Bebela", response.getData().get(0).getName());
 
-        for (UserDTO user : response.getData()) {
-            System.out.println("User ID: " + user.getUserId() + ", Name: " + user.getName());
-            for (OrderDTO order : user.getOrders()) {
-                System.out.println("    Order ID: " + order.getOrderId() + ", Total: " + order.getTotal() + ", Date: " + order.getDate());
-                for (ProductDTO product : order.getProducts()) {
-                    System.out.println("        Product ID: " + product.getProductId() + ", Value: " + product.getValue());
-                }
-            }
-        }
+        // Teste de paginação (page 2, limit 1)
+        response = orderService.getAllOrders(null, null, null, 2, 1);
+        System.out.println("Page 2: " + response.getData().get(0).getName());
+        assertEquals(1, response.getPagination().getEntries());
+        assertEquals(2, response.getPagination().getTotalEntries());
+        assertEquals(2, response.getPagination().getPage());
+        assertEquals(1, response.getPagination().getLimit());
+        assertEquals(2, response.getPagination().getTotalPages());
+
+        assertEquals(1, response.getData().size());
+        assertEquals("Bela", response.getData().get(0).getName());
     }
 }
