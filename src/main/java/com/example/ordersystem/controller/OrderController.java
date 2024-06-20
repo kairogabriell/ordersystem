@@ -1,21 +1,34 @@
 package com.example.ordersystem.controller;
 
+import com.example.ordersystem.service.FileProcessingService;
 import com.example.ordersystem.service.OrderService;
 import spark.Request;
 import spark.Response;
 
+import javax.servlet.MultipartConfigElement;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 
 public class OrderController {
-    private OrderService orderService;
+    private final OrderService orderService;
 
     public OrderController() {
         this.orderService = new OrderService();
     }
 
     public Object uploadFile(Request req, Response res) {
-        //DO TO
-        return "Upload successful";
+        final FileProcessingService fileProcessingService = new FileProcessingService();
+        req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
+
+        try (InputStream is = req.raw().getPart("file").getInputStream()) {
+            String fileContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            fileProcessingService.processFile(fileContent);
+            return "Upload successful";
+        } catch (Exception e) {
+            res.status(500);
+            return "Upload failed: " + e.getMessage();
+        }
     }
 
     public Object getOrders(Request req, Response res) {
