@@ -20,7 +20,7 @@ public class FileProcessingService {
     private final OrderItemRepository orderItemRepository = new OrderItemRepository();
 
     // Mapeando arquivo
-    private static final int LINE_LENGTH = 96;
+    private static final int LINE_LENGTH = 95;
 
     private static final int USER_ID_START = 0;
     private static final int USER_ID_END = 10;
