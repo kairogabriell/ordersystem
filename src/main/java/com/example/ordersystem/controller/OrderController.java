@@ -17,6 +17,10 @@ public class OrderController {
         this.orderService = new OrderService();
     }
 
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
     public Object uploadFile(Request req, Response res) {
         final FileProcessingService fileProcessingService = new FileProcessingService();
         req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
