@@ -52,6 +52,7 @@ public class OrderService {
             if (orderIdFilter != null) {
                 countStmt.setInt(countParamIndex++, orderIdFilter);
             }
+
             if (startDate != null && endDate != null) {
                 countStmt.setDate(countParamIndex++, startDate);
                 countStmt.setDate(countParamIndex, endDate);
