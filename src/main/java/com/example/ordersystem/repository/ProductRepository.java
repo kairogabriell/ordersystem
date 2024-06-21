@@ -18,7 +18,7 @@ public class ProductRepository {
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         product = new Product(rs.getInt("id"));
-                        System.out.println("User found: " + product);
+                        System.out.println("Product found: " + product);
                         return product;
                     }
                 }
@@ -26,7 +26,7 @@ public class ProductRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("User not found: " + product);
+        System.out.println("Product not found: " + product);
         return null;
     }
 
