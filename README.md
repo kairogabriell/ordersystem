@@ -119,7 +119,9 @@ Tabela com tipo e tamanho do dado:
 2. **Configure o banco de dados PostgreSQL**:
 - Crie um banco de dados chamado `ordersystem`.
 - Crie um banco de dados chamado `ordersystem_test`.
-- Atualize as credenciais do banco de dados no arquivo de configuração( application.properties)
+- Atualize as credenciais do banco de dados no arquivo de configuração
+  - Para testes:  ```application-test.properties ```
+  - Para Produção  ```application.properties ```
 
 3. **Build**
      ```bash
@@ -179,6 +181,7 @@ Tabela com tipo e tamanho do dado:
 │   │
 │   └───resources
 │       │   application.properties
+│       │   application-test.properties
 │       │
 │       └───db
 │           └───migration
