@@ -7,38 +7,42 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseUtil {
-    private static final String ADMIN_URL = "jdbc:postgresql://localhost:5432/postgres";
-    private static final String URL = "jdbc:postgresql://localhost:5432/ordersystem";
-    private static final String TEST_URL = "jdbc:postgresql://localhost:5432/ordersystem_test";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "root";
+    private static String ADMIN_URL;
+    private static String URL;
+    private static String TEST_URL;
+    private static String USER;
+    private static String PASSWORD;
 
     private static Connection connection;
 
-    // Realizar a conexão
+    static {
+        ApplicationConfig config = new ApplicationConfig();
+        ADMIN_URL = config.getProperty("db.admin_url");
+        URL = config.getProperty("db.url");
+        TEST_URL = config.getProperty("db.test_url");
+        USER = config.getProperty("db.username");
+        PASSWORD = config.getProperty("db.password");
+    }
+
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
-            String url = isTestEnvironment() ? TEST_URL : URL;
-            connection = DriverManager.getConnection(url, USER, PASSWORD);
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
         }
         return connection;
     }
 
-    // Fechar a conexão
     public static void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
         }
     }
 
-    // Método para truncar as tabelas
     public static void truncateTables() throws SQLException {
         try (Statement stmt = getConnection().createStatement()) {
             stmt.execute("TRUNCATE TABLE order_items, orders, products, users RESTART IDENTITY CASCADE");
         }
     }
 
-    // Método para criar tabelas se não existirem
     public static void createTables() throws SQLException {
         try (Statement stmt = getConnection().createStatement()) {
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
@@ -63,7 +67,6 @@ public class DatabaseUtil {
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id)");
 
-            // Verificando constraints antes de serem adicionadas
             stmt.execute("DO $$ " +
                     "BEGIN " +
                     "IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_order_items_orders') THEN " +
