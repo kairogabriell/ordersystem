@@ -95,8 +95,6 @@ public class OrderService {
                 }
             }
 
-            System.out.println("Executing SQL: " + stmt.toString());
-
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -105,8 +103,6 @@ public class OrderService {
                 int orderId = rs.getInt("order_id");
                 java.sql.Date orderDate = rs.getDate("order_date");
                 double orderTotal = rs.getDouble("order_total");
-
-                System.out.println("Processing Order ID: " + orderId + ", User ID: " + userId + ", User Name: " + userName);
 
                 orderIds.add(orderId);
 
@@ -128,8 +124,6 @@ public class OrderService {
             try (Connection conn = DatabaseUtil.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(itemSql)) {
 
-                System.out.println("Executing SQL: " + stmt.toString());
-
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
@@ -149,11 +143,8 @@ public class OrderService {
             }
         }
 
-        System.out.println("Total Entries: " + totalEntries);
-
         List<UserDTO> userOrders = new ArrayList<>(userOrdersMap.values());
-        PaginationDTO pagination = new PaginationDTO(entries, totalEntries, pageNumber, pageSize); // Ajuste aqui para entradas na página atual
-        System.out.println("Returning " + userOrders.size() + " users with pagination info: " + pagination);
+        PaginationDTO pagination = new PaginationDTO(entries, totalEntries, pageNumber, pageSize);
         return new PaginatedResponseDTO(userOrders, pagination);
     }
 
