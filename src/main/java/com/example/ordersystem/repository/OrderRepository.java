@@ -3,10 +3,7 @@ package com.example.ordersystem.repository;
 import com.example.ordersystem.model.Order;
 import com.example.ordersystem.util.DatabaseUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class OrderRepository {
     public Order findById(int id) {
@@ -70,5 +67,31 @@ public class OrderRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    public Order findOrderInDB(int id, java.sql.Date date, int user_id, int product_id, double amount) {
+        try (Connection connection = DatabaseUtil.getConnection()) {
+            String sql = "SELECT * FROM orders " +
+                    "INNER JOIN order_items ON order_items.order_id = orders.id " +
+                    "WHERE orders.id = ? " +
+                    "AND date = ? " +
+                    "AND user_id = ? " +
+                    "AND product_id = ? " +
+                    "AND value = ?";
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setInt(1, id);
+                stmt.setDate(2, date);
+                stmt.setInt(3, user_id);
+                stmt.setInt(4, product_id);
+                stmt.setDouble(5, amount);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return new Order(rs.getInt("id"), rs.getInt("user_id"), rs.getDate("date"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

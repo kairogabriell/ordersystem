@@ -60,6 +60,13 @@ public class FileProcessingService {
 
                 Date formattedDate = new SimpleDateFormat("yyyyMMdd").parse(dateString);
 
+                // Verificar se o conteudo da linha já foi processado
+                Order findOrder = orderRepository.findOrderInDB(orderId, new java.sql.Date(formattedDate.getTime()), userId, productId, productValue);
+                if (findOrder != null) {
+                    System.err.println("LInha já processada order_id: " + orderId);
+                    continue;
+                }
+
                 User user = userRepository.findByUserId(userId);
                 if (user == null) {
                     user = new User(userId, userName);
