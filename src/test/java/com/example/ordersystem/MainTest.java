@@ -34,7 +34,7 @@ public class MainTest {
                 .post("http://localhost:8080/upload")
                 .then()
                 .statusCode(200)
-                .body(equalTo("Upload successful"));
+                .body(equalTo("Upload realizado com sucesso"));
     }
 
     @Test

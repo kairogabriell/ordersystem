@@ -6,6 +6,7 @@ import spark.Request;
 import spark.Response;
 
 import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.Part;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
@@ -25,13 +26,24 @@ public class OrderController {
         final FileProcessingService fileProcessingService = new FileProcessingService();
         req.attribute("org.eclipse.jetty.multipartConfig", new MultipartConfigElement("/temp"));
 
-        try (InputStream is = req.raw().getPart("file").getInputStream()) {
-            String fileContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            fileProcessingService.processFile(fileContent);
-            return "Upload successful";
+        try  {
+            Part uploadedFile = req.raw().getPart("file");
+            String fileName = uploadedFile.getSubmittedFileName();
+
+            // Check extensão do arquivo enviado
+            if (fileName == null || !fileName.endsWith(".txt")) {
+                res.status(400);
+                return "Extensão de arquivo inválida. Somente arquivos .txt são permitidos";
+            }
+
+            try (InputStream is = uploadedFile.getInputStream()) {
+                String fileContent = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                fileProcessingService.processFile(fileContent);
+                return "Upload realizado com sucesso";
+            }
         } catch (Exception e) {
             res.status(500);
-            return "Upload failed: " + e.getMessage();
+            return "Upload falhou: " + e.getMessage();
         }
     }
 

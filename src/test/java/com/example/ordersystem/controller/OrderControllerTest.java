@@ -42,17 +42,44 @@ class OrderControllerTest {
 
     @Test
     void uploadFile_Success() throws Exception {
-        // Carregar o arquivo de exemplo
+        Request request = mock(Request.class);
+        Response response = mock(Response.class);
+        Part filePart = mock(Part.class);
+
         InputStream fileInputStream = getClass().getClassLoader().getResourceAsStream("example-file.txt");
         assert fileInputStream != null;
         String fileContent = new String(fileInputStream.readAllBytes(), StandardCharsets.UTF_8);
 
-        when(httpServletRequest.getPart(anyString())).thenReturn(filePart);
+        when(request.raw()).thenReturn(mock(javax.servlet.http.HttpServletRequest.class));
+        when(request.raw().getPart("file")).thenReturn(filePart);
         when(filePart.getInputStream()).thenReturn(new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)));
+        when(filePart.getSubmittedFileName()).thenReturn("example-file.txt");
 
+        OrderController orderController = new OrderController();
         String result = (String) orderController.uploadFile(request, response);
 
-        assertEquals("Upload successful", result);
+        assertEquals("Upload realizado com sucesso", result);
+    }
+
+    @Test
+    void uploadFile_ExtensionError() throws Exception {
+        Request request = mock(Request.class);
+        Response response = mock(Response.class);
+        Part filePart = mock(Part.class);
+
+        InputStream fileInputStream = getClass().getClassLoader().getResourceAsStream("example-file.csv");
+        assert fileInputStream != null;
+        String fileContent = new String(fileInputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+        when(request.raw()).thenReturn(mock(javax.servlet.http.HttpServletRequest.class));
+        when(request.raw().getPart("file")).thenReturn(filePart);
+        when(filePart.getInputStream()).thenReturn(new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8)));
+        when(filePart.getSubmittedFileName()).thenReturn("example-file.csv");
+
+        OrderController orderController = new OrderController();
+        String result = (String) orderController.uploadFile(request, response);
+
+        assertEquals("Extensão de arquivo inválida. Somente arquivos .txt são permitidos", result);
     }
 
     @Test
@@ -61,7 +88,7 @@ class OrderControllerTest {
 
         String result = (String) orderController.uploadFile(request, response);
 
-        assertEquals("Upload failed: File upload error", result);
+        assertEquals("Upload falhou: File upload error", result);
         verify(response, times(1)).status(500);
     }
 
