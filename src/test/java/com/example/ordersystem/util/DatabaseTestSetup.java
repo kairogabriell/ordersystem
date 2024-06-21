@@ -9,14 +9,13 @@ import java.sql.SQLException;
 public class DatabaseTestSetup {
 
     @BeforeAll
+    public static void setUpEnvironment() {
+        System.setProperty("env", "test");
+    }
+
+    @BeforeAll
     public static void setUpDatabase() {
         try {
-            if (DatabaseUtil.isTestEnvironment()) {
-                DatabaseUtil.createTestDatabase();
-            } else {
-                DatabaseUtil.createMainDatabase();
-            }
-
             DatabaseUtil.createTables();
         } catch (SQLException e) {
             e.printStackTrace();

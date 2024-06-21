@@ -7,19 +7,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseUtil {
-    private static String ADMIN_URL;
     private static String URL;
-    private static String TEST_URL;
     private static String USER;
     private static String PASSWORD;
 
     private static Connection connection;
 
     static {
-        ApplicationConfig config = new ApplicationConfig();
-        ADMIN_URL = config.getProperty("db.admin_url");
+        String env = System.getProperty("env", "prod");
+        ApplicationConfig config = new ApplicationConfig(env);
+
         URL = config.getProperty("db.url");
-        TEST_URL = config.getProperty("db.test_url");
         USER = config.getProperty("db.username");
         PASSWORD = config.getProperty("db.password");
     }
@@ -80,48 +78,6 @@ public class DatabaseUtil {
                     "ALTER TABLE order_items ADD CONSTRAINT fk_order_items_products FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE; " +
                     "END IF; " +
                     "END $$");
-        }
-    }
-
-    // Check para ambiente de teste
-    public static boolean isTestEnvironment() {
-        String env = System.getenv("ENV");
-        return env != null && env.equals("test");
-    }
-
-    // Verificar e criar banco de testes se necessário
-    public static void createTestDatabase() throws SQLException {
-        try (Connection adminConnection = DriverManager.getConnection(ADMIN_URL, USER, PASSWORD);
-             Statement stmt = adminConnection.createStatement()) {
-
-            ResultSet resultSet = stmt.executeQuery("SELECT 1 FROM pg_database WHERE datname = 'ordersystem_test'");
-            if (!resultSet.next()) {
-                stmt.execute("CREATE DATABASE ordersystem_test");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to create test database.", e);
-        }
-    }
-
-    //  Check para banco principal
-    public static void createMainDatabase() throws SQLException {
-        try (Connection adminConnection = DriverManager.getConnection(ADMIN_URL, USER, PASSWORD);
-             Statement stmt = adminConnection.createStatement()) {
-
-            // Verificar se existe
-            ResultSet resultSet = stmt.executeQuery("SELECT 1 FROM pg_database WHERE datname = 'ordersystem'");
-            if (!resultSet.next()) {
-                stmt.execute("CREATE DATABASE ordersystem");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to create main database.", e);
-        }
-
-        //Criar tabelas se necessário
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            createTables();
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to create tables in main database.", e);
         }
     }
 }

@@ -71,7 +71,7 @@ public class OrderServiceTest extends DatabaseTestSetup {
         assertEquals(2, response.getPagination().getEntries());
         assertEquals(2, response.getPagination().getTotalEntries());
         assertEquals(1, response.getPagination().getPage());
-        assertEquals(100, response.getPagination().getLimit()); // Assuming default limit is 10
+        assertEquals(100, response.getPagination().getLimit());
         assertEquals(1, response.getPagination().getTotalPages());
 
         // Verificando os detalhes dos pedidos

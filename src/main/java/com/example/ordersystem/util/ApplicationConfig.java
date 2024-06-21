@@ -7,11 +7,12 @@ import java.util.Properties;
 public class ApplicationConfig {
     private Properties properties = new Properties();
 
-    public ApplicationConfig() {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+    public ApplicationConfig(String env) {
+        String configFileName = "application" + (env.equals("test") ? "-test" : "") + ".properties";
+
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(configFileName)) {
             if (input == null) {
-                System.out.println("Sorry, unable to find application.properties");
-                return;
+                throw new RuntimeException("Sorry, unable to find " + configFileName);
             }
             properties.load(input);
         } catch (IOException ex) {
