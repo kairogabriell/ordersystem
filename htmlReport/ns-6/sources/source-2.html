@@ -1,0 +1,199 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=windows-1252"> 
+  <title>Coverage Report > DatabaseUtil</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.ordersystem.util</a>
+</div>
+
+<h1>Coverage Summary for Class: DatabaseUtil (com.example.ordersystem.util)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">DatabaseUtil</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    83,3%
+  </span>
+  <span class="absValue">
+    (5/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (8/16)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91,7%
+  </span>
+  <span class="absValue">
+    (22/24)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.example.ordersystem.util;
+&nbsp;
+&nbsp;import java.sql.Connection;
+&nbsp;import java.sql.DriverManager;
+&nbsp;import java.sql.ResultSet;
+&nbsp;import java.sql.SQLException;
+&nbsp;import java.sql.Statement;
+&nbsp;
+<b class="nc">&nbsp;public class DatabaseUtil {</b>
+&nbsp;    private static String URL;
+&nbsp;    private static String USER;
+&nbsp;    private static String PASSWORD;
+&nbsp;
+&nbsp;    private static Connection connection;
+&nbsp;
+&nbsp;    static {
+<b class="fc">&nbsp;        String env = System.getProperty(&quot;env&quot;, &quot;prod&quot;);</b>
+<b class="fc">&nbsp;        ApplicationConfig config = new ApplicationConfig(env);</b>
+&nbsp;
+<b class="fc">&nbsp;        URL = config.getProperty(&quot;db.url&quot;);</b>
+<b class="fc">&nbsp;        USER = config.getProperty(&quot;db.username&quot;);</b>
+<b class="fc">&nbsp;        PASSWORD = config.getProperty(&quot;db.password&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static Connection getConnection() throws SQLException {
+<b class="fc">&nbsp;        if (connection == null || connection.isClosed()) {</b>
+<b class="fc">&nbsp;            connection = DriverManager.getConnection(URL, USER, PASSWORD);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return connection;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void closeConnection() throws SQLException {
+<b class="pc">&nbsp;        if (connection != null &amp;&amp; !connection.isClosed()) {</b>
+<b class="nc">&nbsp;            connection.close();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void truncateTables() throws SQLException {
+<b class="pc">&nbsp;        try (Statement stmt = getConnection().createStatement()) {</b>
+<b class="fc">&nbsp;            stmt.execute(&quot;TRUNCATE TABLE order_items, orders, products, users RESTART IDENTITY CASCADE&quot;);</b>
+<b class="pc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void createTables() throws SQLException {
+<b class="pc">&nbsp;        try (Statement stmt = getConnection().createStatement()) {</b>
+<b class="fc">&nbsp;            stmt.execute(&quot;CREATE TABLE IF NOT EXISTS users (&quot; +</b>
+&nbsp;                    &quot;id SERIAL PRIMARY KEY,&quot; +
+&nbsp;                    &quot;name VARCHAR(255) NOT NULL)&quot;);
+&nbsp;
+<b class="fc">&nbsp;            stmt.execute(&quot;CREATE TABLE IF NOT EXISTS products (&quot; +</b>
+&nbsp;                    &quot;id SERIAL PRIMARY KEY)&quot;);
+&nbsp;
+<b class="fc">&nbsp;            stmt.execute(&quot;CREATE TABLE IF NOT EXISTS orders (&quot; +</b>
+&nbsp;                    &quot;id SERIAL PRIMARY KEY,&quot; +
+&nbsp;                    &quot;user_id INT NOT NULL REFERENCES users(id),&quot; +
+&nbsp;                    &quot;total NUMERIC(10, 2) NOT NULL DEFAULT 0,&quot; +
+&nbsp;                    &quot;date TIMESTAMP NOT NULL)&quot;);
+&nbsp;
+<b class="fc">&nbsp;            stmt.execute(&quot;CREATE TABLE IF NOT EXISTS order_items (&quot; +</b>
+&nbsp;                    &quot;id SERIAL PRIMARY KEY,&quot; +
+&nbsp;                    &quot;order_id INT NOT NULL REFERENCES orders(id),&quot; +
+&nbsp;                    &quot;product_id INT NOT NULL REFERENCES products(id),&quot; +
+&nbsp;                    &quot;value NUMERIC(10, 2) NOT NULL)&quot;);
+&nbsp;
+<b class="fc">&nbsp;            stmt.execute(&quot;CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)&quot;);</b>
+<b class="fc">&nbsp;            stmt.execute(&quot;CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id)&quot;);</b>
+&nbsp;
+<b class="fc">&nbsp;            stmt.execute(&quot;DO $$ &quot; +</b>
+&nbsp;                    &quot;BEGIN &quot; +
+&nbsp;                    &quot;IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = &#39;fk_order_items_orders&#39;) THEN &quot; +
+&nbsp;                    &quot;ALTER TABLE order_items ADD CONSTRAINT fk_order_items_orders FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE; &quot; +
+&nbsp;                    &quot;END IF; &quot; +
+&nbsp;                    &quot;END $$&quot;);
+&nbsp;
+<b class="fc">&nbsp;            stmt.execute(&quot;DO $$ &quot; +</b>
+&nbsp;                    &quot;BEGIN &quot; +
+&nbsp;                    &quot;IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = &#39;fk_order_items_products&#39;) THEN &quot; +
+&nbsp;                    &quot;ALTER TABLE order_items ADD CONSTRAINT fk_order_items_products FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE; &quot; +
+&nbsp;                    &quot;END IF; &quot; +
+&nbsp;                    &quot;END $$&quot;);
+<b class="pc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2024-06-21 19:13</div>
+</div>
+</body>
+</html>
