@@ -41,7 +41,7 @@ public class FileProcessingService {
     private static final int DATE_END = 95;
 
     public void processFile(String fileContent) {
-        String[] lines = fileContent.split("\n");
+        String[] lines = fileContent.split("\r?\n");
 
         for (String line : lines) {
             if (line.length() != LINE_LENGTH) {
