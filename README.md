@@ -27,11 +27,11 @@ Tabela com tipo e tamanho do dado:
 
 
 ## Technology Stack
-- **Java 11**: A principal linguagem de programação utilizada para a implementação.
+- **Java 17**: A principal linguagem de programação utilizada para a implementação.
 - **PostgreSQL**: Banco de dados relacional usado para armazenar os dados de pedidos normalizados.
 - **Jetty**: Servidor HTTP usado para lidar com as solicitações da API REST.
 - **Gson**: Biblioteca usada para serialização e desserialização JSON.
-- **Maven**: Ferramenta de automação de build usada para gerenciar dependências do projeto e ciclo de vida do build.
+- **Gradle**: Ferramenta de automação de build usada para gerenciar dependências do projeto e ciclo de vida do build.
 - **Flyway**: Ferramenta de migração para gerenciamento de mudanças no esquema do BD de maneira controlada e versionada.
 
 ## Escolhas de arquitetura
@@ -124,88 +124,115 @@ Tabela com tipo e tamanho do dado:
   - Para Produção  ```application.properties ```
 
 3. **Build**
-     ```bash
-      mvn clean install
-     ```
+  -  Windows:
+   ```bash
+     gradlew.bat clean build
+  ```
+   - Linux/macOS:
+   ```bash
+     ./gradlew clean build
+  ```
+
 4. **Execute as migrações de banco de dados**:
-    ```bash
-    mvn flyway:migrate
+   -  Windows:
+   ```bash
+      gradlew.bat flywayMigrate
     ```
+- Linux/macOS:
+   ```bash
+     ./gradlew flywayMigrate
+  ```
 5. **Execute o aplicativo**:
-     ```bash
-     mvn exec:java -Dexec.mainClass="com.example.ordersystem.Main"
-     ```
+    -  Windows:
+   ```bash
+     gradlew.bat runMain
+    ```
+- Linux/macOS:
+   ```bash
+     ./gradlew runMain
+  ```
+
 ### Teste
 - **Executar testes**:
-    ```bash
-    mvn test
+    -  Windows:
+   ```bash
+     gradlew.bat test
     ```
+- Linux/macOS:
+   ```bash
+     ./gradlew test
+  ```
 
 ### Estrutura do Projeto
 ```
+├───gradle
+│   └───wrapper
+│           gradle-wrapper.jar
+│           gradle-wrapper.properties
+│
 └───src
-├───main
-│   ├───java
-│   │   └───com
-│   │       └───example
-│   │           └───ordersystem
-│   │               │   Main.java
-│   │               │
-│   │               ├───controller
-│   │               │       OrderController.java
-│   │               │
-│   │               ├───model
-│   │               │       Order.java
-│   │               │       OrderItem.java
-│   │               │       Product.java
-│   │               │       User.java
-│   │               │
-│   │               ├───repository
-│   │               │       OrderItemRepository.java
-│   │               │       OrderRepository.java
-│   │               │       ProductRepository.java
-│   │               │       UserRepository.java
-│   │               │
-│   │               ├───service
-│   │               │       FileProcessingService.java
-│   │               │       OrderDTO.java
-│   │               │       OrderService.java
-│   │               │       PaginatedResponseDTO.java
-│   │               │       PaginationDTO.java
-│   │               │       ProductDTO.java
-│   │               │       UserDTO.java
-│   │               │
-│   │               └───util
-│   │                       ApplicationConfig.java
-│   │                       DatabaseUtil.java
-│   │
-│   └───resources
-│       │   application.properties
-│       │   application-test.properties
-│       │
-│       └───db
-│           └───migration
-│                   V1__initial_schema.sql
-│
-└───test
-├───java
-│   └───com
-│       └───example
-│           └───ordersystem
-│               │   MainTest.java
-│               │
-│               ├───controller
-│               │       OrderControllerTest.java
-│               │
-│               ├───repository
-│               ├───service
-│               │       FileProcessingServiceTest.java
-│               │       OrderServiceTest.java
-│               │
-│               └───util
-│                       DatabaseTestSetup.java
-│
-└───resources
-example-file.csv
-example-file.txt
+    ├───main
+    │   ├───java
+    │   │   └───com
+    │   │       └───example
+    │   │           └───ordersystem
+    │   │               │   Main.java
+    │   │               │
+    │   │               ├───controller
+    │   │               │       OrderController.java
+    │   │               │
+    │   │               ├───model
+    │   │               │       Order.java
+    │   │               │       OrderItem.java
+    │   │               │       Product.java
+    │   │               │       User.java
+    │   │               │
+    │   │               ├───repository
+    │   │               │       OrderItemRepository.java
+    │   │               │       OrderRepository.java
+    │   │               │       ProductRepository.java
+    │   │               │       UserRepository.java
+    │   │               │
+    │   │               ├───service
+    │   │               │       FileProcessingService.java
+    │   │               │       OrderDTO.java
+    │   │               │       OrderService.java
+    │   │               │       PaginatedResponseDTO.java
+    │   │               │       PaginationDTO.java
+    │   │               │       ProductDTO.java
+    │   │               │       UserDTO.java
+    │   │               │
+    │   │               └───util
+    │   │                       ApplicationConfig.java
+    │   │                       DatabaseUtil.java
+    │   │
+    │   └───resources
+    │       │   application-test.properties
+    │       │   application.properties
+    │       │
+    │       └───db
+    │           └───migration
+    │                   V1__initial_schema.sql
+    │
+    └───test
+        ├───java
+        │   └───com
+        │       └───example
+        │           └───ordersystem
+        │               │   MainTest.java
+        │               │
+        │               ├───controller
+        │               │       OrderControllerTest.java
+        │               │
+        │               ├───repository
+        │               ├───service
+        │               │       FileProcessingServiceTest.java
+        │               │       OrderServiceTest.java
+        │               │
+        │               └───util
+        │                       DatabaseTestSetup.java
+        │
+        └───resources
+                example-file.csv
+                example-file.txt
 ```

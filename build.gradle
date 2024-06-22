@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.flywaydb.flyway' version '8.0.0'
+    id 'application'
 }
 
 group 'com.example'
@@ -24,26 +25,57 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured:5.3.0'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 test {
     useJUnitPlatform()
 }
 
+// Função para carregar propriedades do arquivo especificado
+def loadProperties(filePath) {
+    def properties = new Properties()
+    file(filePath).withInputStream { stream ->
+        properties.load(stream)
+    }
+    return properties
+}
+
+def mainProperties = loadProperties('src/main/resources/application.properties')
+def testProperties = loadProperties('src/main/resources/application-test.properties')
+
 flyway {
-    url = 'jdbc:postgresql://localhost:5432/ordersystem'
-    user = 'postgres'
-    password = 'root'
+    url = mainProperties.getProperty('db.url')
+    user = mainProperties.getProperty('db.username')
+    password = mainProperties.getProperty('db.password')
     schemas = ['public']
     locations = ['filesystem:src/main/resources/db/migration']
+    baselineOnMigrate = true
+}
+
+// Configuração para executar a classe principal
+application {
+    mainClass = 'com.example.ordersystem.Main'
+}
+
+task runMain(type: JavaExec) {
+    mainClass = 'com.example.ordersystem.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = []
 }
 
 task migrateTestDb {
     doLast {
         flyway {
-            url = 'jdbc:postgresql://localhost:5432/ordersystem_test'
-            user = 'postgres'
-            password = 'root'
+            url = testProperties.getProperty('db.url')
+            user = testProperties.getProperty('db.username')
+            password = testProperties.getProperty('db.password')
             schemas = ['public']
             locations = ['filesystem:src/main/resources/db/migration']
+            baselineOnMigrate = true
         }
         flywayMigrate.execute()
     }
