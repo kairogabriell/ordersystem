@@ -105,7 +105,7 @@ Tabela com tipo e tamanho do dado:
 ## Executando o Projeto
 
 ### Pré-requisitos
-- Java 11
+- Java 17
 - Maven
 - PostgreSQL
 
@@ -134,23 +134,43 @@ Tabela com tipo e tamanho do dado:
   ```
 
 4. **Execute as migrações de banco de dados**:
-   -  Windows:
-   ```bash
-      gradlew.bat flywayMigrate
+- Ambiente de teste:
+  - Windows:
+     ```bash
+        gradlew.bat migrateTestDb
+      ```
+  - Linux/macOS:
+     ```bash
+       ./gradlew migrateTestDb
     ```
-- Linux/macOS:
+- Ambiente de produção:
+  -  Windows:
    ```bash
-     ./gradlew flywayMigrate
+    gradlew.bat migrateProdDb
   ```
+  - Linux/macOS:
+     ```bash
+       ./gradlew migrateProdDb
+    ```
 5. **Execute o aplicativo**:
-    -  Windows:
-   ```bash
-     gradlew.bat runMain
-    ```
-- Linux/macOS:
-   ```bash
-     ./gradlew runMain
-  ```
+   - Ambiente de teste:
+       -  Windows:
+     ```bash
+        gradlew.bat runTest
+      ```
+   - Linux/macOS:
+      ```bash
+        ./gradlew runTest
+     ```
+   - Ambiente de produção:
+     -  Windows:
+      ```bash
+       gradlew.bat runMain
+     ```
+     - Linux/macOS:
+        ```bash
+          ./gradlew runMain
+       ```
 
 ### Teste
 - **Executar testes**:
