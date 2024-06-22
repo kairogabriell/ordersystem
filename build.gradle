@@ -33,6 +33,7 @@ java {
 
 test {
     useJUnitPlatform()
+    systemProperty 'env', 'test'
 }
 
 // Função para carregar propriedades do arquivo especificado
@@ -44,13 +45,19 @@ def loadProperties(filePath) {
     return properties
 }
 
-def mainProperties = loadProperties('src/main/resources/application.properties')
-def testProperties = loadProperties('src/main/resources/application-test.properties')
+// Definir o valor de 'env'
+def env = project.hasProperty('env') ? project.env : 'prod'
+println "Ambiente atual: ${env}"
+
+def propertiesFile = env == 'test' ? 'src/main/resources/application-test.properties' : 'src/main/resources/application.properties'
+
+if (!file(propertiesFile).exists()) {
+    throw new GradleException("O arquivo de propriedades '${propertiesFile}' não foi encontrado.")
+}
+
+def properties = loadProperties(propertiesFile)
 
 flyway {
-    url = mainProperties.getProperty('db.url')
-    user = mainProperties.getProperty('db.username')
-    password = mainProperties.getProperty('db.password')
     schemas = ['public']
     locations = ['filesystem:src/main/resources/db/migration']
     baselineOnMigrate = true
@@ -65,10 +72,13 @@ task runMain(type: JavaExec) {
     mainClass = 'com.example.ordersystem.Main'
     classpath = sourceSets.main.runtimeClasspath
     args = []
+    environment 'env', 'prod'
 }
 
 task migrateTestDb {
     doLast {
+        def testProperties = loadProperties('src/main/resources/application-test.properties')
+        println "Migrando banco de dados de teste com URL: ${testProperties.getProperty('db.url')}"
         flyway {
             url = testProperties.getProperty('db.url')
             user = testProperties.getProperty('db.username')
@@ -79,4 +89,27 @@ task migrateTestDb {
         }
         flywayMigrate.execute()
     }
+}
+
+task migrateProdDb {
+    doLast {
+        def prodProperties = loadProperties('src/main/resources/application.properties')
+        println "Migrando banco de dados de produção com URL: ${prodProperties.getProperty('db.url')}"
+        flyway {
+            url = prodProperties.getProperty('db.url')
+            user = prodProperties.getProperty('db.username')
+            password = prodProperties.getProperty('db.password')
+            schemas = ['public']
+            locations = ['filesystem:src/main/resources/db/migration']
+            baselineOnMigrate = true
+        }
+        flywayMigrate.execute()
+    }
+}
+
+task runTest(type: JavaExec) {
+    mainClass = 'com.example.ordersystem.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = []
+    environment 'env', 'test'
 }

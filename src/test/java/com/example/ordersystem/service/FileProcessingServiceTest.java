@@ -7,6 +7,8 @@ import com.example.ordersystem.repository.OrderItemRepository;
 import com.example.ordersystem.repository.ProductRepository;
 import com.example.ordersystem.repository.UserRepository;
 import com.example.ordersystem.util.DatabaseTestSetup;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,6 +24,16 @@ class FileProcessingServiceTest extends DatabaseTestSetup {
     private final UserRepository userRepository = new UserRepository();
     private final ProductRepository productRepository = new ProductRepository();
     private final OrderItemRepository orderItemRepository = new OrderItemRepository();
+
+    @BeforeAll
+    public static void setUp() {
+        setUpDatabase();
+    }
+
+    @BeforeEach
+    public void setUpEach() {
+        truncateTablesBeforeEachTest();
+    }
 
     @Test
     void testProcessFile() throws IOException {

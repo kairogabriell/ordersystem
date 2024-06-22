@@ -36,9 +36,16 @@ public class DatabaseUtil {
     }
 
     public static void truncateTables() throws SQLException {
-        try (Statement stmt = getConnection().createStatement()) {
-            stmt.execute("TRUNCATE TABLE order_items, orders, products, users RESTART IDENTITY CASCADE");
+        if (isTestEnvironment()) {
+            try (Statement stmt = getConnection().createStatement()) {
+                stmt.execute("TRUNCATE TABLE order_items, orders, products, users RESTART IDENTITY CASCADE");
+            }
         }
+    }
+
+    // Check para ambiente de teste
+    public static boolean isTestEnvironment() {
+        return "test".equals(System.getProperty("env"));
     }
 
     public static void createTables() throws SQLException {
