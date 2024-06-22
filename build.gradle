@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.flywaydb.flyway' version '8.0.0'
     id 'application'
+    id 'jacoco'
 }
 
 group 'com.example'
@@ -34,6 +35,21 @@ java {
 test {
     useJUnitPlatform()
     systemProperty 'env', 'test'
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
 }
 
 // Função para carregar propriedades do arquivo especificado
@@ -63,7 +79,7 @@ flyway {
     baselineOnMigrate = true
 }
 
-// Executar migration no ambinete de test
+// Task para migrar o banco de dados de teste
 task migrateTestDb(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
     doFirst {
         def testProperties = loadProperties('src/main/resources/application-test.properties')
@@ -74,7 +90,7 @@ task migrateTestDb(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
     }
 }
 
-// Executar migration no ambinete de produção
+// Task para migrar o banco de dados de produção
 task migrateProdDb(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
     doFirst {
         def prodProperties = loadProperties('src/main/resources/application.properties')
@@ -85,7 +101,7 @@ task migrateProdDb(type: org.flywaydb.gradle.task.FlywayMigrateTask) {
     }
 }
 
-// Executar aplicação no ambinete de testes
+// Task para executar a aplicação no ambiente de teste
 task runTest(type: JavaExec) {
     mainClass = 'com.example.ordersystem.Main'
     classpath = sourceSets.main.runtimeClasspath
@@ -93,7 +109,7 @@ task runTest(type: JavaExec) {
     environment 'env', 'test'
 }
 
-// Executar aplicação no ambinete de produção
+// Task para executar a aplicação no ambiente de produção
 task runMain(type: JavaExec) {
     mainClass = 'com.example.ordersystem.Main'
     classpath = sourceSets.main.runtimeClasspath

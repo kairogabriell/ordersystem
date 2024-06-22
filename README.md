@@ -30,6 +30,7 @@ Tabela com tipo e tamanho do dado:
 - **Java 17**: A principal linguagem de programação utilizada para a implementação.
 - **PostgreSQL**: Banco de dados relacional usado para armazenar os dados de pedidos normalizados.
 - **Jetty**: Servidor HTTP usado para lidar com as solicitações da API REST.
+- **JaCoCo**: Usado para gerar relatório de analise de copertura de testes no codigo.
 - **Gson**: Biblioteca usada para serialização e desserialização JSON.
 - **Gradle**: Ferramenta de automação de build usada para gerenciar dependências do projeto e ciclo de vida do build.
 - **Flyway**: Ferramenta de migração para gerenciamento de mudanças no esquema do BD de maneira controlada e versionada.
@@ -145,44 +146,53 @@ Tabela com tipo e tamanho do dado:
     ```
 - Ambiente de produção:
   -  Windows:
-   ```bash
-    gradlew.bat migrateProdDb
-  ```
+       ```bash
+        gradlew.bat migrateProdDb
+       ```
+    - Linux/macOS:
+       ```bash
+         ./gradlew migrateProdDb
+      ```
+5. **Execute o aplicativo**:
+- Ambiente de teste:
+  - Windows:
+      ```bash
+         gradlew.bat runTest
+       ```
   - Linux/macOS:
      ```bash
-       ./gradlew migrateProdDb
+       ./gradlew runTest
     ```
-5. **Execute o aplicativo**:
-   - Ambiente de teste:
-       -  Windows:
+- Ambiente de produção:
+  - Windows:
      ```bash
-        gradlew.bat runTest
-      ```
-   - Linux/macOS:
-      ```bash
-        ./gradlew runTest
-     ```
-   - Ambiente de produção:
-     -  Windows:
-      ```bash
-       gradlew.bat runMain
-     ```
-     - Linux/macOS:
-        ```bash
-          ./gradlew runMain
-       ```
+      gradlew.bat runMain
+    ```
+  - Linux/macOS:
+     ```bash
+       ./gradlew runMain
+    ```
 
 ### Teste
 - **Executar testes**:
     -  Windows:
-   ```bash
-     gradlew.bat test
-    ```
-- Linux/macOS:
-   ```bash
-     ./gradlew test
-  ```
-
+       ```bash
+         gradlew.bat test
+        ```
+    - Linux/macOS:
+        ```bash
+         ./gradlew test
+        ```
+### Relatório de Teste
+  - **Executar testes**:
+    -  Windows:
+         ```bash
+          gradlew.bat test jacocoTestReport
+        ```
+    - Linux/macOS:
+       ```bash
+         ./gradlew test jacocoTestReport
+       ```
 ### Estrutura do Projeto
 ```
 ├───gradle
